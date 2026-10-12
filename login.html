@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aegis Gateway - Authentication Portal</title>
+    <!-- Style Connections -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/login.css">
+    <style>
+        .password-field-wrapper {
+            position: relative;
+        }
+        .password-toggle-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: var(--accent-primary);
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            cursor: pointer;
+            padding: 5px;
+            user-select: none;
+        }
+        .remember-forgot-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+        }
+        .remember-me-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+        .remember-me-checkbox input {
+            cursor: pointer;
+            accent-color: var(--accent-primary);
+        }
+    </style>
+</head>
+<body>
+
+
+    <!-- Header Navigation -->
+    <header class="aegis-header">
+        <div class="container header-inner">
+            <div class="logo">
+                <a href="index.html" style="display: flex; align-items: center; gap: 10px; color: inherit;">
+                    <div class="logo-icon"></div>
+                    <span>AEGIS GATEWAY</span>
+                </a>
+            </div>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="register.html" class="btn btn-secondary" style="padding: 6px 12px; margin-left: 10px;">Register</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h2>Identity Clearance</h2>
+                    <p>Enter gateway credentials to establish session clearance</p>
+                </div>
+
+                <!-- Display alerts here -->
+                <div id="alertContainer"></div>
+
+                <form id="loginForm" novalidate>
+                    <!-- Username -->
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" class="form-control" placeholder="Enter username" required autocomplete="username">
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="password-field-wrapper">
+                            <input type="password" id="password" class="form-control" placeholder="Enter password" required autocomplete="current-password">
+                            <button type="button" class="password-toggle-btn" id="togglePassword">SHOW</button>
+                        </div>
+                    </div>
+
+                    <!-- Remember Me / Registration Link Row -->
+                    <div class="remember-forgot-row">
+                        <label class="remember-me-checkbox">
+                            <input type="checkbox" id="rememberMe">
+                            <span>Remember Identity</span>
+                        </label>
+                        <a href="register.html" style="font-size: 0.85rem;">Request Access?</a>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">
+                        Initiate Secure Session
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    New operator? <a href="register.html">Enlist Identity Registry</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="aegis-footer">
+        <div class="container">
+            <p>&copy; 2026 Aegis Gateway Project. Released under educational sandbox terms.</p>
+        </div>
+    </footer>
+
+    <!-- JS Connections -->
+    <script src="js/security.js"></script>
+    <script src="js/login.js"></script>
+</body>
+</html>

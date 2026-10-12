@@ -1,0 +1,144 @@
+/*
+ * AegisGateway - Login & Registration Stylesheet
+ */
+
+.auth-container {
+    max-width: 520px;
+    margin: 60px auto;
+    padding: 0 20px;
+}
+
+.auth-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 35px 30px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--accent-primary);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.auth-header h2 {
+    font-size: 1.6rem;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    text-shadow: var(--text-glow);
+}
+
+.auth-header p {
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+}
+
+/* Password Strength Indicator Visual Panel */
+.strength-indicator {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+    margin-top: 8px;
+}
+
+.strength-bar {
+    height: 4px;
+    background-color: var(--border-color);
+    border-radius: 2px;
+    transition: var(--transition);
+}
+
+.strength-text {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 5px;
+    text-align: right;
+    display: block;
+    font-family: var(--font-mono);
+}
+
+/* Input validation status styles */
+.input-status {
+    font-size: 0.78rem;
+    margin-top: 5px;
+    display: none;
+    font-family: var(--font-mono);
+}
+
+.input-status.active {
+    display: block;
+}
+
+.status-valid {
+    color: var(--color-success);
+}
+
+.status-invalid {
+    color: var(--color-danger);
+}
+
+/* Form footer controls */
+.auth-footer {
+    margin-top: 25px;
+    text-align: center;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+}
+
+.auth-footer a {
+    font-weight: 600;
+}
+
+.role-selector-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+/* Customized Selector buttons */
+.role-option {
+    border: 1px solid var(--border-color);
+    background: rgba(5, 8, 17, 0.4);
+    border-radius: var(--border-radius);
+    padding: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    color: var(--text-secondary);
+}
+
+.role-option.selected {
+    border-color: var(--accent-primary);
+    background: rgba(0, 240, 255, 0.08);
+    color: var(--accent-primary);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
+}
+
+.role-option input {
+    display: none;
+}
+
+.role-option h4 {
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+    font-family: var(--font-heading);
+}
+
+.role-option p {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}

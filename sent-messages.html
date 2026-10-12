@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aegis Gateway - Sent Transmissions</title>
+    <!-- Style Connections -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        /* Tabular Layout & Filter bar */
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-search {
+            flex-grow: 1;
+        }
+        .filter-select {
+            width: 180px;
+        }
+        .msg-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        .msg-table th, .msg-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .msg-table th {
+            background-color: var(--bg-dark);
+            color: var(--text-secondary);
+            font-family: var(--font-heading);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+        .msg-table tr {
+            transition: var(--transition);
+        }
+        .msg-table tr:hover {
+            background: rgba(0, 240, 255, 0.03);
+            cursor: pointer;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+        }
+        .status-unread {
+            background: rgba(255, 183, 0, 0.15);
+            color: var(--color-warning);
+            border: 1px solid var(--color-warning);
+        }
+        .status-read {
+            background: rgba(0, 255, 170, 0.15);
+            color: var(--color-success);
+            border: 1px solid var(--color-success);
+        }
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 0.75rem;
+        }
+
+        /* Detail Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(5, 8, 17, 0.85);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--bg-panel);
+            border: 1px solid var(--accent-primary);
+            border-radius: var(--border-radius);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.25);
+            padding: 30px;
+            position: relative;
+            transform: translateY(-20px);
+            transition: var(--transition);
+        }
+        .modal-overlay.active .modal-container {
+            transform: translateY(0);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+        .modal-title {
+            font-size: 1.3rem;
+            color: var(--accent-primary);
+        }
+        .modal-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .modal-body {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            white-space: pre-wrap;
+            background: rgba(5, 8, 17, 0.5);
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+        }
+        .attachment-tag {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--accent-secondary);
+            margin-top: 10px;
+            font-family: var(--font-mono);
+        }
+    </style>
+    <!-- Immediate Authentication Guard -->
+    <script src="js/security.js"></script>
+    <script>
+        // Force authentication immediately before rendering body
+        const activeUser = AegisSession.requireAuth();
+    </script>
+</head>
+<body>
+
+ 
+    <!-- Header Navigation -->
+    <header class="aegis-header">
+        <div class="container header-inner">
+            <div class="logo">
+                <a href="dashboard.html" style="display: flex; align-items: center; gap: 10px; color: inherit;">
+                    <div class="logo-icon"></div>
+                    <span>AEGIS GATEWAY</span>
+                </a>
+            </div>
+            <nav style="display: flex; align-items: center; gap: 15px;">
+                <span id="headerClock" style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-secondary);"></span>
+                <span style="color: var(--text-muted);">|</span>
+                <span id="sessionUsername" style="font-size: 0.85rem; font-weight: 500;"></span>
+                <button id="logoutBtnTop" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;">Terminal Exit</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Workspace Container -->
+    <div class="dashboard-wrapper">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li class="sidebar-item">
+                    <a href="dashboard.html">
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="send-message.html">
+                        <span>Send Message</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="inbox.html">
+                        <span>Inbox</span>
+                    </a>
+                </li>
+                <li class="sidebar-item active">
+                    <a href="sent-messages.html">
+                        <span>Sent Messages</span>
+                    </a>
+                </li>
+                
+                <!-- Admin Only Sidebar Links -->
+                <li class="sidebar-item admin-only" id="menuUsers" style="display: none;">
+                    <a href="users.html">
+                        <span>Users (Admin)</span>
+                    </a>
+                </li>
+                <li class="sidebar-item admin-only" id="menuActivity" style="display: none;">
+                    <a href="activity.html">
+                        <span>Activity Logs</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-item">
+                    <a href="profile.html">
+                        <span>Profile Settings</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Sidebar Footer / Logout -->
+            <ul class="sidebar-menu" style="margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                <li class="sidebar-item">
+                    <a href="#" id="logoutBtnSidebar" style="color: var(--color-danger);">
+                        <span>Term. Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- Page Title -->
+            <section class="welcome-banner">
+                <div class="user-identity">
+                    <h2>Sent Messages Log</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">Audit secure transmissions dispatched from your gateway node</p>
+                </div>
+            </section>
+
+            <!-- Filters Bar -->
+            <section class="filter-bar">
+                <input type="text" id="searchQuery" class="form-control filter-search" placeholder="Search by recipient name, subject, or message payload...">
+                <select id="statusFilter" class="form-control filter-select" style="background-color: var(--bg-panel); border-color: var(--border-color);">
+                    <option value="all">All Transmissions</option>
+                    <option value="unread">Recipient Unread</option>
+                    <option value="read">Recipient Read</option>
+                </select>
+            </section>
+
+            <!-- Message Grid/Table panel -->
+            <section class="aegis-card" style="padding: 0; overflow-x: auto;">
+                <table class="msg-table" id="sentTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">Recipient Node</th>
+                            <th style="width: 45%;">Subject Header</th>
+                            <th style="width: 20%;">Date & Time</th>
+                            <th style="width: 10%;">Status</th>
+                            <th style="width: 10%;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sentTableBody">
+                        <!-- Dynamic list entries -->
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--text-muted);">Syncing gateway message streams...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Message Detail Modal Overlay -->
+    <div class="modal-overlay" id="messageModalOverlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title" id="modalSubject">Subject Header</h3>
+                    <div class="modal-meta" style="margin-top: 8px;">Recipient: <span id="modalReceiver" style="color: var(--accent-primary);"></span></div>
+                    <div class="modal-meta">Transmission Timestamp: <span id="modalDate" style="font-family: var(--font-mono);"></span></div>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" id="closeModalBtn" style="border-radius: 4px;">CLOSE</button>
+            </div>
+            
+            <div class="modal-body" id="modalMessage">
+                Message contents
+            </div>
+            
+            <div id="modalAttachment" class="attachment-tag">
+                <!-- Injected attachment badge -->
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--border-color); padding-top: 20px; margin-top: 20px;">
+                <button type="button" class="btn btn-secondary btn-sm" id="closeModalBtnFooter">Close Reader</button>
+                <button type="button" class="btn btn-primary btn-sm" id="deleteModalBtn" style="border-color: var(--color-danger); color: var(--color-danger); background: rgba(255, 59, 48, 0.05);">
+                    Delete Record
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Connections -->
+    <script src="js/message.js"></script>
+</body>
+</html>

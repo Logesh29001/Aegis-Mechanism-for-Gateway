@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aegis Gateway - Secure Identity Registry</title>
+    <!-- Style Connections -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+
+
+    <!-- Header Navigation -->
+    <header class="aegis-header">
+        <div class="container header-inner">
+            <div class="logo">
+                <a href="index.html" style="display: flex; align-items: center; gap: 10px; color: inherit;">
+                    <div class="logo-icon"></div>
+                    <span>AEGIS GATEWAY</span>
+                </a>
+            </div>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="login.html" class="btn btn-secondary" style="padding: 6px 12px; margin-left: 10px;">Login Portal</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h2>Identity Registry</h2>
+                    <p>Establish a simulated secure access credential key</p>
+                </div>
+
+                <!-- Display alerts here -->
+                <div id="alertContainer"></div>
+
+                <form id="registerForm" novalidate>
+                    <!-- Full Name -->
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" class="form-control" placeholder="e.g. John Doe" required>
+                    </div>
+
+                    <!-- Username -->
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" class="form-control" placeholder="e.g. jdoe99 (alphanumeric)" required>
+                        <div id="usernameStatus" class="input-status"></div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" class="form-control" placeholder="e.g. name@aegis.gov" required>
+                        <div id="emailStatus" class="input-status"></div>
+                    </div>
+
+                    <!-- Mobile Number -->
+                    <div class="form-group">
+                        <label for="mobile">Mobile Number</label>
+                        <input type="tel" id="mobile" class="form-control" placeholder="e.g. 9876543210 (10 digits)" required>
+                        <div id="mobileStatus" class="input-status"></div>
+                    </div>
+
+                    <!-- Role Selector (Custom Radio Buttons for Theme Integration) -->
+                    <div class="form-group">
+                        <label>Assigned Gateway Security Role</label>
+                        <div class="role-selector-container">
+                            <div class="role-option selected" id="roleUserOpt" onclick="selectRole('Officer/User')">
+                                <h4>Officer / User</h4>
+                                <p>Standard access & secure message box</p>
+                                <input type="radio" name="role" id="roleUser" value="Officer/User" checked>
+                            </div>
+                            <div class="role-option" id="roleAdminOpt" onclick="selectRole('Administrator')">
+                                <h4>Administrator</h4>
+                                <p>Audit controls, logs & user database</p>
+                                <input type="radio" name="role" id="roleAdmin" value="Administrator">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-group">
+                        <label for="password">Security Password</label>
+                        <input type="password" id="password" class="form-control" placeholder="Strong security password" required>
+                        
+                        <!-- Password Strength bars -->
+                        <div class="strength-indicator">
+                            <div class="strength-bar" id="bar1"></div>
+                            <div class="strength-bar" id="bar2"></div>
+                            <div class="strength-bar" id="bar3"></div>
+                            <div class="strength-bar" id="bar4"></div>
+                        </div>
+                        <span class="strength-text" id="strengthLabel">Strength: Empty</span>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" class="form-control" placeholder="Verify security password" required>
+                        <div id="confirmStatus" class="input-status"></div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px; padding: 12px;">
+                        Complete Secure Enrollment
+                    </button>
+                </form>
+
+                <div class="auth-footer">
+                    Already enrolled? <a href="login.html">Access Command Portal</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="aegis-footer">
+        <div class="container">
+            <p>&copy; 2026 Aegis Gateway Project. Released under educational sandbox terms.</p>
+        </div>
+    </footer>
+
+    <!-- JS Connections -->
+    <script src="js/security.js"></script>
+    <script src="js/register.js"></script>
+</body>
+</html>

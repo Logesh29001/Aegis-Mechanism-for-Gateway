@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aegis Gateway - Dashboard Control Center</title>
+    <!-- Style Connections -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        /* Admin Grid layouts specific to Phase 13 */
+        .admin-tables-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 25px;
+            margin-top: 25px;
+        }
+        @media (max-width: 1024px) {
+            .admin-tables-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .security-status-panel {
+            background: rgba(0, 255, 170, 0.03);
+            border: 1px solid var(--color-success);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        .security-indicator-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .indicator-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+        }
+        .indicator-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--color-success);
+            box-shadow: 0 0 8px var(--color-success);
+        }
+    </style>
+    <!-- Immediate Authentication Guard -->
+    <script src="js/security.js"></script>
+    <script>
+        // Force authentication immediately before rendering body
+        const activeUser = AegisSession.requireAuth();
+    </script>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="aegis-header">
+        <div class="container header-inner">
+            <div class="logo">
+                <a href="dashboard.html" style="display: flex; align-items: center; gap: 10px; color: inherit;">
+                    <div class="logo-icon"></div>
+                    <span>AEGIS GATEWAY</span>
+                </a>
+            </div>
+            <nav style="display: flex; align-items: center; gap: 15px;">
+                <span id="headerClock" style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-secondary);"></span>
+                <span style="color: var(--text-muted);">|</span>
+                <span id="sessionUsername" style="font-size: 0.85rem; font-weight: 500;"></span>
+                <button id="logoutBtnTop" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;">Terminal Exit</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Workspace -->
+    <div class="dashboard-wrapper">
+        
+        <!-- Sidebar Panel -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li class="sidebar-item active">
+                    <a href="dashboard.html">
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="send-message.html">
+                        <span>Send Message</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="inbox.html">
+                        <span>Inbox</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="sent-messages.html">
+                        <span>Sent Messages</span>
+                    </a>
+                </li>
+                
+                <!-- Admin Only Sidebar Links -->
+                <li class="sidebar-item admin-only" id="menuUsers" style="display: none;">
+                    <a href="users.html">
+                        <span>Users (Admin)</span>
+                    </a>
+                </li>
+                <li class="sidebar-item admin-only" id="menuActivity" style="display: none;">
+                    <a href="activity.html">
+                        <span>Activity Logs</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-item">
+                    <a href="profile.html">
+                        <span>Profile Settings</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Sidebar Footer / Logout -->
+            <ul class="sidebar-menu" style="margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                <li class="sidebar-item">
+                    <a href="#" id="logoutBtnSidebar" style="color: var(--color-danger);">
+                        <span>Term. Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- User Welcome Banner -->
+            <section class="welcome-banner">
+                <div class="user-identity">
+                    <h2>Welcome, <span id="userFullName"></span></h2>
+                    <span id="roleBadge" class="role-badge"></span>
+                </div>
+                <div style="text-align: right; font-size: 0.85rem; color: var(--text-secondary);">
+                    <div>Clearance Node: <span style="color: var(--accent-primary); font-family: var(--font-mono);">LOCAL-HOST.01</span></div>
+                    <div>Status: <span style="color: var(--color-success);">AUTHENTICATED</span></div>
+                </div>
+            </section>
+
+            <!-- Admin Security Status command bar (Admin Only) -->
+            <section class="security-status-panel" id="adminSecurityPanel" style="display: none;">
+                <h3 style="color: var(--color-success); font-family: var(--font-heading); text-transform: uppercase;">
+                    🛡️ Aegis Security Status Command Console
+                </h3>
+                <div class="security-indicator-row">
+                    <div class="indicator-item">
+                        <div class="indicator-dot"></div>
+                        <span>Client Input Guard: <strong>ACTIVE</strong></span>
+                    </div>
+                    <div class="indicator-item">
+                        <div class="indicator-dot"></div>
+                        <span>XSS Shield: <strong>ACTIVE</strong></span>
+                    </div>
+                    <div class="indicator-item">
+                        <div class="indicator-dot"></div>
+                        <span>Crypto Digests: <strong>VERIFIED</strong></span>
+                    </div>
+                    <div class="indicator-item">
+                        <div class="indicator-dot"></div>
+                        <span>Database State: <strong>OK (100% Integrity)</strong></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Metrics grid -->
+            <section class="stats-grid">
+                <!-- Stat Card 1 -->
+                <div class="stat-card" id="cardUsers" style="display: none;">
+                    <h4>Active Operators</h4>
+                    <div class="stat-value" id="statTotalUsers">0</div>
+                    <div class="stat-meta">Active / Total enrolled nodes</div>
+                </div>
+                <!-- Stat Card 2 -->
+                <div class="stat-card">
+                    <h4>Inbox Messages</h4>
+                    <div class="stat-value" id="statInboxMessages">0</div>
+                    <div class="stat-meta">Unread: <span id="statUnreadCount" style="font-family: var(--font-mono); color: var(--accent-primary); font-weight: bold;">0</span> messages</div>
+                </div>
+                <!-- Stat Card 3 -->
+                <div class="stat-card">
+                    <h4>Sent Messages</h4>
+                    <div class="stat-value" id="statSentMessages">0</div>
+                    <div class="stat-meta">Transmitted secure messages</div>
+                </div>
+                <!-- Stat Card 4 -->
+                <div class="stat-card" id="cardActivities" style="display: none;">
+                    <h4>Global Messages</h4>
+                    <div class="stat-value" id="statGlobalMessages">0</div>
+                    <div class="stat-meta">System wide secure transmissions</div>
+                </div>
+            </section>
+
+            <!-- Bottom Grid (Admin Tables & Timeline) -->
+            <div id="adminDashboardSection" style="display: none;">
+                <!-- Side-by-side Tables Grid -->
+                <div class="admin-tables-grid">
+                    <!-- User list card -->
+                    <div class="aegis-card" style="padding: 20px;">
+                        <h4 style="margin-bottom: 15px; font-family: var(--font-heading); text-transform: uppercase; color: var(--accent-primary);">Active Operators Directory</h4>
+                        <div style="overflow-x: auto;">
+                            <table class="msg-table" style="font-size: 0.8rem;">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Username</th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                id="adminUsersTableBody"
+                                <tbody id="adminUsersTableBody">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Messages list card -->
+                    <div class="aegis-card" style="padding: 20px;">
+                        <h4 style="margin-bottom: 15px; font-family: var(--font-heading); text-transform: uppercase; color: var(--accent-primary);">Global Gateway Transmissions</h4>
+                        <div style="overflow-x: auto;">
+                            <table class="msg-table" style="font-size: 0.8rem;">
+                                <thead>
+                                    <tr>
+                                        <th>Sender</th>
+                                        <th>Receiver</th>
+                                        <th>Subject</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminMessagesTableBody">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activities & Timeline (For both roles, filtered dynamically) -->
+            <section class="aegis-card" style="margin-top: 25px;">
+                <h3 style="margin-bottom: 20px; text-transform: uppercase;">Recent Telemetry Audit Logs</h3>
+                
+                <div class="timeline-list" id="recentActivityList">
+                    <!-- Dynamic logs injected here -->
+                    <div style="color: var(--text-muted); font-size: 0.9rem;">Retrieving log files...</div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- JS Connections -->
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aegis Gateway - Operator Directory Management</title>
+    <!-- Style Connections -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        .users-layout-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 25px;
+            margin-top: 20px;
+        }
+        @media (max-width: 1024px) {
+            .users-layout-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .user-status-active {
+            background: rgba(0, 255, 170, 0.15);
+            color: var(--color-success);
+            border: 1px solid var(--color-success);
+        }
+        .user-status-inactive {
+            background: rgba(255, 59, 48, 0.15);
+            color: var(--color-danger);
+            border: 1px solid var(--color-danger);
+        }
+        .user-role-badge {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .role-admin {
+            border: 1px solid var(--color-warning);
+            color: var(--color-warning);
+        }
+        .role-officer {
+            border: 1px solid var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        
+        /* Modal Overlay Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(5, 8, 17, 0.85);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--bg-panel);
+            border: 1px solid var(--accent-primary);
+            border-radius: var(--border-radius);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.25);
+            padding: 30px;
+            position: relative;
+            transform: translateY(-20px);
+            transition: var(--transition);
+        }
+        .modal-overlay.active .modal-container {
+            transform: translateY(0);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+    </style>
+    <!-- Immediate Administrator Guard -->
+    <script src="js/security.js"></script>
+    <script>
+        // Force authentication and role checks immediately before rendering body
+        const activeUser = AegisSession.requireAdmin();
+    </script>
+</head>
+<body>
+
+
+
+    <!-- Header Navigation -->
+    <header class="aegis-header">
+        <div class="container header-inner">
+            <div class="logo">
+                <a href="dashboard.html" style="display: flex; align-items: center; gap: 10px; color: inherit;">
+                    <div class="logo-icon"></div>
+                    <span>AEGIS GATEWAY</span>
+                </a>
+            </div>
+            <nav style="display: flex; align-items: center; gap: 15px;">
+                <span id="headerClock" style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent-secondary);"></span>
+                <span style="color: var(--text-muted);">|</span>
+                <span id="sessionUsername" style="font-size: 0.85rem; font-weight: 500;"></span>
+                <button id="logoutBtnTop" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;">Terminal Exit</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Workspace Container -->
+    <div class="dashboard-wrapper">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li class="sidebar-item">
+                    <a href="dashboard.html">
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="send-message.html">
+                        <span>Send Message</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="inbox.html">
+                        <span>Inbox</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a href="sent-messages.html">
+                        <span>Sent Messages</span>
+                    </a>
+                </li>
+                
+                <!-- Admin Only Sidebar Links -->
+                <li class="sidebar-item admin-only active" id="menuUsers">
+                    <a href="users.html">
+                        <span>Users (Admin)</span>
+                    </a>
+                </li>
+                <li class="sidebar-item admin-only" id="menuActivity" style="display: none;">
+                    <a href="activity.html">
+                        <span>Activity Logs</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-item">
+                    <a href="profile.html">
+                        <span>Profile Settings</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Sidebar Footer / Logout -->
+            <ul class="sidebar-menu" style="margin-top: auto; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                <li class="sidebar-item">
+                    <a href="#" id="logoutBtnSidebar" style="color: var(--color-danger);">
+                        <span>Term. Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- Page Title -->
+            <section class="welcome-banner">
+                <div class="user-identity">
+                    <h2>Operator Directory Management</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">Register, search, configure, activate, or decommission network access identities</p>
+                </div>
+            </section>
+
+            <!-- Dual Section Layout Grid -->
+            <div class="users-layout-grid">
+                
+                <!-- Left Panel: Create User -->
+                <div class="aegis-card">
+                    <h3 style="margin-bottom: 20px; font-family: var(--font-heading); text-transform: uppercase;">Enroll New Node</h3>
+                    <div id="createAlertContainer"></div>
+                    
+                    <form id="addUserForm" novalidate>
+                        <div class="form-group">
+                            <label for="newFullName">Full Name</label>
+                            <input type="text" id="newFullName" class="form-control" required placeholder="John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label for="newUsername">Username</label>
+                            <input type="text" id="newUsername" class="form-control" required placeholder="jdoe">
+                        </div>
+                        <div class="form-group">
+                            <label for="newEmail">Email</label>
+                            <input type="email" id="newEmail" class="form-control" required placeholder="jdoe@aegis.gov">
+                        </div>
+                        <div class="form-group">
+                            <label for="newMobile">Mobile Number</label>
+                            <input type="tel" id="newMobile" class="form-control" required placeholder="10 digits">
+                        </div>
+                        <div class="form-group">
+                            <label for="newRole">Security Role</label>
+                            <select id="newRole" class="form-control" style="background-color: var(--bg-darker); border-color: var(--border-color);">
+                                <option value="Officer/User">Officer / User</option>
+                                <option value="Administrator">Administrator</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">Temporary Password</label>
+                            <input type="password" id="newPassword" class="form-control" required placeholder="Password@123">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px; padding: 12px;">
+                            Authorize Registry
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Right Panel: Operator Grid -->
+                <div class="aegis-card" style="padding: 20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+                        <h3 style="font-family: var(--font-heading); text-transform: uppercase;">Operators Directory</h3>
+                        <input type="text" id="userSearch" class="form-control" placeholder="Search by name, email, or username..." style="max-width: 320px;">
+                    </div>
+
+                    <div style="overflow-x: auto;">
+                        <table class="msg-table" id="usersTable" style="font-size: 0.85rem;">
+                            <thead>
+                                <tr>
+                                    <th>Full Name</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Edit User Modal Overlay -->
+    <div class="modal-overlay" id="editUserModalOverlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 style="font-family: var(--font-heading); color: var(--accent-primary);">EDIT OPERATOR NODE</h3>
+                <button type="button" class="btn btn-secondary btn-sm" id="closeEditModalBtn" style="padding: 2px 6px;">CLOSE</button>
+            </div>
+            
+            <div id="editAlertContainer"></div>
+
+            <form id="editUserForm" novalidate>
+                <input type="hidden" id="editUsernameHidden">
+
+                <div class="form-group">
+                    <label for="editFullName">Full Name</label>
+                    <input type="text" id="editFullName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="editEmail">Email Address</label>
+                    <input type="email" id="editEmail" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="editMobile">Mobile Number</label>
+                    <input type="tel" id="editMobile" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="editRole">Assigned Role</label>
+                    <select id="editRole" class="form-control" style="background-color: var(--bg-darker); border-color: var(--border-color);">
+                        <option value="Officer/User">Officer / User</option>
+                        <option value="Administrator">Administrator</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editStatus">Gateway Access Status</label>
+                    <select id="editStatus" class="form-control" style="background-color: var(--bg-darker); border-color: var(--border-color);">
+                        <option value="active">Active (Permitted)</option>
+                        <option value="inactive">Inactive (Suspended)</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--border-color); padding-top: 20px; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary btn-sm" id="closeEditModalBtnFooter">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm">Save Modifications</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JS Connections -->
+    <script src="js/users.js"></script>
+</body>
+</html>
